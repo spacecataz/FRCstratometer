@@ -14,8 +14,8 @@ class FrcGame(object):
     Game object for simulating one game.
     '''
 
-    def __init__(self, stratfunc, gametime=150, autontime=30,
-                 endgametime=120):
+    def __init__(self, stratfunc, gametime=150, autontime=15,
+                 endgametime=130):
         '''
         Set up object.
 
