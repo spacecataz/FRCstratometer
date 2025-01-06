@@ -7,6 +7,46 @@ See the README for more information on writing the strat function.
 '''
 
 import numpy as np
+from numpy.random import normal, rand
+import matplotlib.pyplot as plt
+
+
+def roll_for_time(avg, stddev):
+    '''
+    Roll for time elapsed of some action by drawing from normal distribution
+    to account for variability in performance.
+
+    Paramters
+    ---------
+    avg, stddev : float
+        Set the mean and standard deviation for the distribution from which
+        the function will draw.
+
+    Returns
+    -------
+    time : float
+        Time elapsed for the action.
+    '''
+
+    return normal(avg, stddev)
+
+
+def roll_for_success(rate):
+    '''
+    Determine if a function is successful or not given a *rate* of success.
+
+    Parameters
+    ----------
+    rate : float, [0, 1]
+        The fraction of success (e.g., .7 is 70% success rate).
+
+    Returns
+    -------
+    outcome : bool
+        Outcome of action, either True (success) or False.
+    '''
+
+    return rate > rand()
 
 
 class FrcMatch(object):
@@ -140,7 +180,7 @@ class FrcMatch(object):
         # End game.
         self.status['gameover'] = True
 
-    def viz_game():
+    def viz_game(self, title='FRC Stratometer Match Simulation'):
         '''
         Create single-game visualizations.
         '''
@@ -148,4 +188,32 @@ class FrcMatch(object):
         if not self.status['gameover']:
             raise ValueError('Simulation not complete.')
 
-        # Figure 1:
+        # ### Figure 1:
+        fig1, ax = plt.subplots(1, 1, figsize=[8, 6])
+        ax.plot(self.time, self.score, 'o-', drawstyle='steps-post')
+
+        # Fill game regions:
+        ymin, ymax = ax.get_ylim()
+        ax.fill_between([0, self.autontime], [ymax, ymax], fc='gold', alpha=.5)
+        ax.fill_between([self.autontime, self.gametime], [ymax, ymax],
+                        fc='skyblue', alpha=.5)
+
+        ax.set_xlabel('Game Time ($s$)')
+        ax.set_ylabel('Robot Points')
+        ax.set_title(title)
+
+        fig1.tight_layout()
+
+        # ### Figure 2:
+        points = [self.points_auton, self.points_tele, self.points_end]
+        pnames = ['Autonomous', 'Teleop', 'End Game']
+        fig2, ax = plt.subplots(1, 1, figsize=[8, 6])
+        ax.bar(pnames, points, label=pnames)
+
+        # Clean up plot.
+        ax.set_xlabel('Scoring Periods')
+        ax.set_ylabel('Robot Points')
+        ax.set_title(title)
+        fig2.tight_layout()
+
+        return fig1, fig2
